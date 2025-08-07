@@ -1,10 +1,10 @@
 import './App.css'
-import Test from './components/test'
+import WebcamFeed from './components/WebcamFeed'
 
 function App() {
   return (
     <>
-    <Test/>
+    <WebcamFeed/>
     </>
   )
 }
