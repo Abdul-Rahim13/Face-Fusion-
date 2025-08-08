@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react'
+import Tiny_Face_Detector from '../models/tiny_face_detector_model-weights_manifest.json'
+import Face_Landmark from '../models/face_landmark_68_tiny_model-weights_manifest.json'
 
 function WebcamFeed() {
     const videoRef = useRef(null)
