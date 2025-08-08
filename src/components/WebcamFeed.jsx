@@ -2,61 +2,65 @@ import { useEffect, useRef } from 'react'
 import * as faceapi from 'face-api.js'
 
 function WebcamFeed() {
-    const videoRef = useRef(null)
-    const canvasRef = useRef(null)
+    const videoRef = useRef(null)      
+    const canvasRef = useRef(null)     
 
     useEffect(() => {
-        startVideo()
-        loadModels()
+        startVideo()                 
+        loadModels()               
     }, [])
 
+    // Start webcam stream
     const startVideo = () => {
         navigator.mediaDevices.getUserMedia({
-            video: true,
+            video: true,              
             audio: false
-        }).then(stream => {
-            videoRef.current.srcObject = stream
-        }).catch(err => {
-            console.error("Error accessing webcam:", err)
+        }).then((stream) => {
+            videoRef.current.srcObject = stream  
+        }).catch((error) => {
+            console.log("Error accessing webcam:", error)
         })
     }
 
-    const loadModels = async () => {
-        await Promise.all([
-            faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
-            faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-            faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
-            faceapi.nets.faceExpressionNet.loadFromUri('/models')
-        ])
-        detectFaces()
+    // Load required models from /models folder
+    const loadModels = () => {
+        Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri('/models'),       
+            faceapi.nets.faceLandmark68Net.loadFromUri('/models'),      
+            faceapi.nets.faceRecognitionNet.loadFromUri('/models'),     
+            faceapi.nets.faceExpressionNet.loadFromUri('/models')       
+        ]).then(() => {
+            detectFaces()          
+        })
     }
 
+    // Main face detection logic
     const detectFaces = () => {
-        const interval = setInterval(async () => {
-            const video = videoRef.current
-            const canvas = canvasRef.current
-
-            if (!video || !canvas || video.readyState !== 4) return
-
-            const displaySize = {
-                width: video.videoWidth,
-                height: video.videoHeight,
-            }
-
-            canvas.width = displaySize.width
-            canvas.height = displaySize.height
-
+        setInterval(async () => {
+            // Detect faces with landmarks and expressions
             const detections = await faceapi.detectAllFaces(
-                video,
+                videoRef.current,
                 new faceapi.TinyFaceDetectorOptions()
             ).withFaceLandmarks().withFaceExpressions()
 
+            // Clear canvas and draw over video
+            const canvas = canvasRef.current
+            const displaySize = {
+                width: videoRef.current.videoWidth,
+                height: videoRef.current.videoHeight
+            }
+
+            // Match canvas size to video
+            faceapi.matchDimensions(canvas, displaySize)
+
+            // Resize detection results to match display
             const resized = faceapi.resizeResults(detections, displaySize)
 
+            // Clear previous drawings
             const ctx = canvas.getContext('2d')
             ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-            // Flip canvas horizontally to match mirrored video
+// Mirror drawing on canvas
             ctx.save()
             ctx.translate(canvas.width, 0)
             ctx.scale(-1, 1)
@@ -66,8 +70,7 @@ function WebcamFeed() {
             faceapi.draw.drawFaceExpressions(canvas, resized)
 
             ctx.restore()
-        }, 100)
-        return () => clearInterval(interval)
+        }, 1000) 
     }
 
     return (
@@ -76,17 +79,18 @@ function WebcamFeed() {
                 ref={videoRef}
                 autoPlay
                 muted
-                playsInline
-                width="640"
-                height="480"
                 className="rounded shadow-lg absolute"
-                style={{ transform: 'scaleX(-1)' }} // Mirror video only
+                style={{
+                    width: '640px',
+                    height: '480px',
+                }}
             />
 
             <canvas
                 ref={canvasRef}
                 className="rounded absolute"
                 style={{
+                    transform: 'scaleX(-1)',
                     width: '640px',
                     height: '480px',
                 }}
