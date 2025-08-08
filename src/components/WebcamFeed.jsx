@@ -66,29 +66,16 @@ function WebcamFeed() {
     return (
         <div className="min-h-screen bg-black flex items-center justify-center relative">
             <video
-                ref={videoRef}
-                autoPlay
-                muted
-                className="rounded shadow-lg absolute"
-                style={{
-                    width: '100%',
-                    height: 'auto',
-                    maxWidth: '640px',
-                    aspectRatio: '4 / 3',
-                }}
-            />
+            ref={videoRef}
+            autoPlay
+            muted
+            className="rounded shadow-lg absolute w-[98vw] h-auto max-h-[90vh] object-cover"
+        />
 
-            <canvas
-                ref={canvasRef}
-                className="rounded absolute"
-                style={{
-                    transform: 'scaleX(-1)',
-                    width: '100%',
-                    height: 'auto',
-                    maxWidth: '640px',
-                    aspectRatio: '4 / 3',
-                }}
-            />
+        <canvas
+            ref={canvasRef}
+            className="rounded absolute w-[98vw] h-auto max-h-[90vh] object-cover scale-x-[-1]"
+        />
         </div>
     )
 }
